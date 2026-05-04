@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tours Precios 2026 - Minimal</title>
+    <style>
+        :root {
+            /* Paleta Amigable y Minimalista */
+            --bg-main: #f9fafb; 
+            --text-main: #4a5568; 
+            --text-muted: #a0aec0; 
+            --accent-friendly: #4fd1c5; 
+            --accent-hover: #319795; 
+            --card-bg: #ffffff;
+            --border-color: #edf2f7; 
+            --note-text: #dd6b20; 
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            padding: 60px 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 500;
+            color: var(--text-main);
+            opacity: 0.8;
+        }
+        
+        .subtitle {
+            font-size: 0.9rem;
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        /* Selector Minimalista */
+        .selector-box {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .select-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-bottom: 2px solid var(--border-color);
+            border-radius: 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-main);
+            cursor: pointer;
+            outline: none;
+            background-color: transparent;
+            transition: border-color 0.3s ease;
+            appearance: none; 
+            -webkit-appearance: none;
+        }
+
+        select:focus {
+            border-color: var(--accent-friendly);
+        }
+
+        .select-wrapper::after {
+            content: '\25BC';
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        /* Tarjeta de Resultados Flat */
+        .result-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tour-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .tour-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--accent-friendly);
+            letter-spacing: -0.5px;
+        }
+
+        .pax-entry {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .pax-entry:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .data-item {
+            font-size: 0.95rem;
+        }
+
+        .label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-bottom: 3px;
+        }
+
+        .value {
+            font-size: 1.05rem;
+            font-weight: 400;
+            color: var(--text-main);
+        }
+
+        /* Notas destacadas de forma suave */
+        .notes-section {
+            grid-column: 1 / -1;
+            margin-top: 10px;
+            background-color: var(--bg-main);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .note-item {
+            font-size: 0.85rem;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .note-item:last-child { margin-bottom: 0; }
+
+        .note-critical {
+            color: var(--note-text);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Consultor de Tours</h1>
+    <div class="subtitle">Tarifas 13 Abr - 30 Jun 2026</div>
+    
+    <div class="selector-box">
+        <div class="select-wrapper">
+            <select id="tourSelect" onchange="updateView()">
+                <option value="" disabled selected>Elige un tour o parque...</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="result" class="result-card">
+        <!-- Contenido dinámico -->
+    </div>
+</div>
+
+<script>
+    // Dataset con la columna G (Notas 1) exacta
+    const tourData = {
+        "XCARET PLUS": [{"operador": "Parques Xcaret", "tipo_pasajero": "Adulto", "precio_internacional": "$165 USD", "precio_nacional": "$155 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Parques Xcaret", "tipo_pasajero": "Menor", "precio_internacional": "$124 USD", "precio_nacional": "$116 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "XCARET PLUS (C/ Experiencias)": [{"operador": "Parques Xcaret", "tipo_pasajero": "Adulto", "precio_internacional": "$167 USD", "precio_nacional": "$154 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Parques Xcaret", "tipo_pasajero": "Menor", "precio_internacional": "$125 USD", "precio_nacional": "$116 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "XPLOR DIA": [{"operador": "Parques Xcaret", "tipo_pasajero": "Adulto", "precio_internacional": "$136 USD", "precio_nacional": "$131 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Parques Xcaret", "tipo_pasajero": "Menor", "precio_internacional": "$102 USD", "precio_nacional": "$98 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "XPLOR FUEGO": [{"operador": "Parques Xcaret", "tipo_pasajero": "Adulto", "precio_internacional": "$128 USD", "precio_nacional": "$128 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Parques Xcaret", "tipo_pasajero": "Menor", "precio_internacional": "$96 USD", "precio_nacional": "$96 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "XELHA": [{"operador": "Parques Xcaret", "tipo_pasajero": "Adulto", "precio_internacional": "$118 USD", "precio_nacional": "$109 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Parques Xcaret", "tipo_pasajero": "Menor", "precio_internacional": "$89 USD", "precio_nacional": "$82 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "XOXIMILCO": [{"operador": "Parques Xcaret", "tipo_pasajero": "Adulto", "precio_internacional": "$109 USD", "precio_nacional": "$109 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Parques Xcaret", "tipo_pasajero": "Menor", "precio_internacional": "$82 USD", "precio_nacional": "$82 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "XENOTES": [{"operador": "Parques Xcaret", "tipo_pasajero": "Adulto", "precio_internacional": "$117 USD", "precio_nacional": "$117 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Parques Xcaret", "tipo_pasajero": "Menor", "precio_internacional": "$88 USD", "precio_nacional": "$88 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "XENSES": [{"operador": "Parques Xcaret", "tipo_pasajero": "Adulto", "precio_internacional": "$89 USD", "precio_nacional": "$89 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Parques Xcaret", "tipo_pasajero": "Menor", "precio_internacional": "$67 USD", "precio_nacional": "$67 USD", "tipo_cambio": "18.50 MN", "notas_1": "TEMPORADA BAJA (13-Abr al 30-Jun). Niños 5-11 años pagan 25% menos de la tarifa adulto.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "CHICHÉN CLÁSICO (Mayan Secret)": [{"operador": "Mayan Secret", "tipo_pasajero": "Adulto", "precio_internacional": "$52 USD", "precio_nacional": "$38 USD", "tipo_cambio": "N/A", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Mayan Secret", "tipo_pasajero": "Menor", "precio_internacional": "$38 USD", "precio_nacional": "$35 USD", "tipo_cambio": "N/A", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "CHICHÉN VIP": [{"operador": "Mayan Secret", "tipo_pasajero": "Adulto", "precio_internacional": "$65 USD", "precio_nacional": "$55 USD", "tipo_cambio": "N/A", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Mayan Secret", "tipo_pasajero": "Menor", "precio_internacional": "$58 USD", "precio_nacional": "$50 USD", "tipo_cambio": "N/A", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "CHICHEN CLÁSICO (Dream Tour)": [{"operador": "Dream Tour", "tipo_pasajero": "Adulto", "precio_internacional": "$52 USD", "precio_nacional": "$35 USD", "tipo_cambio": "18.00 MN", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Dream Tour", "tipo_pasajero": "Menor", "precio_internacional": "$39 USD", "precio_nacional": "$33 USD", "tipo_cambio": "18.00 MN", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "CHICHÉN PLUS": [{"operador": "Dream Tour", "tipo_pasajero": "Adulto", "precio_internacional": "$58 USD", "precio_nacional": "$42 USD", "tipo_cambio": "18.00 MN", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Dream Tour", "tipo_pasajero": "Menor", "precio_internacional": "$46 USD", "precio_nacional": "$37 USD", "tipo_cambio": "18.00 MN", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "CHICHÉN DELUXE (Dream Tour)": [{"operador": "Dream Tour", "tipo_pasajero": "Adulto", "precio_internacional": "$62 USD", "precio_nacional": "$55 USD", "tipo_cambio": "18.00 MN", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Dream Tour", "tipo_pasajero": "Menor", "precio_internacional": "$50 USD", "precio_nacional": "$42 USD", "tipo_cambio": "18.00 MN", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "CASA TORTUGAS DREAM TOUR": [{"operador": "Dream Tour", "tipo_pasajero": "Adulto", "precio_internacional": "$45 USD", "precio_nacional": "$45 USD", "tipo_cambio": "18.00 MN", "notas_1": "Incluidos los chalecos en el cenote", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Dream Tour", "tipo_pasajero": "Menor", "precio_internacional": "$45 USD", "precio_nacional": "$45 USD", "tipo_cambio": "18.00 MN", "notas_1": "Incluidos los chalecos en el cenote", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "4X1 CLÁSICO": [{"operador": "Dream Tour", "tipo_pasajero": "Adulto", "precio_internacional": "$70 USD", "precio_nacional": "$60 USD", "tipo_cambio": "18.00 MN", "notas_1": "Incluidos impuestos de Tulum jaguar y coba y chalecos", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Dream Tour", "tipo_pasajero": "Menor", "precio_internacional": "$60 USD", "precio_nacional": "$50 USD", "tipo_cambio": "18.00 MN", "notas_1": "Incluidos impuestos de Tulum jaguar y coba y chalecos", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "4X1 PLUS": [{"operador": "Dream Tour", "tipo_pasajero": "Adulto", "precio_internacional": "$80 USD", "precio_nacional": "$70 USD", "tipo_cambio": "18.00 MN", "notas_1": "Incluidos impuestos de Tulum jaguar y coba y chalecos", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Dream Tour", "tipo_pasajero": "Menor", "precio_internacional": "$70 USD", "precio_nacional": "$60 USD", "tipo_cambio": "18.00 MN", "notas_1": "Incluidos impuestos de Tulum jaguar y coba y chalecos", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "CHICHEN CLÁSICO (Mayab Travel)": [{"operador": "Mayab Travel", "tipo_pasajero": "Adulto", "precio_internacional": "$57 USD", "precio_nacional": "$36 USD", "tipo_cambio": "17.00 MN", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Mayab Travel", "tipo_pasajero": "Menor", "precio_internacional": "$39 USD", "precio_nacional": "$36 USD", "tipo_cambio": "17.00 MN", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "CHICHÉN DELUXE (Mayab Travel)": [{"operador": "Mayab Travel", "tipo_pasajero": "Adulto", "precio_internacional": "$72 USD", "precio_nacional": "$65 USD", "tipo_cambio": "17.00 MN", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Mayab Travel", "tipo_pasajero": "Menor", "precio_internacional": "$63 USD", "precio_nacional": "$63 USD", "tipo_cambio": "17.00 MN", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "CHICHEN DIAMANTE": [{"operador": "Mayab Travel", "tipo_pasajero": "Adulto", "precio_internacional": "$90 USD", "precio_nacional": "$76 USD", "tipo_cambio": "17.00 MN", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Mayab Travel", "tipo_pasajero": "Menor", "precio_internacional": "$70 USD", "precio_nacional": "$70 USD", "tipo_cambio": "17.00 MN", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "5X1 CLÁSICO": [{"operador": "Mayab Travel", "tipo_pasajero": "Adulto", "precio_internacional": "$82 USD", "precio_nacional": "$64 USD", "tipo_cambio": "17.00 MN", "notas_1": "Tulum, COBA, Cenote, Aldea Maya, PDC. Impuestos incluidos.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Mayab Travel", "tipo_pasajero": "Menor", "precio_internacional": "$39 USD", "precio_nacional": "$36 USD", "tipo_cambio": "17.00 MN", "notas_1": "Tulum, COBA, Cenote, Aldea Maya, PDC. Impuestos incluidos.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "5X1 DELUXE": [{"operador": "Mayab Travel", "tipo_pasajero": "Adulto", "precio_internacional": "$91 USD", "precio_nacional": "$87 USD", "tipo_cambio": "17.00 MN", "notas_1": "Tulum, COBA, Cenote, Aldea Maya, PDC. Impuestos incluidos.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Mayab Travel", "tipo_pasajero": "Menor", "precio_internacional": "$72 USD", "precio_nacional": "$70 USD", "tipo_cambio": "17.00 MN", "notas_1": "Tulum, COBA, Cenote, Aldea Maya, PDC. Impuestos incluidos.", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "COZUMEL VIP CIELO PLAYA MIA": [{"operador": "Mayab Travel", "tipo_pasajero": "General", "precio_internacional": "$126 USD", "precio_nacional": "$126 USD", "tipo_cambio": "17.00 MN", "notas_1": "$2100 MN + $225 MN de impuestos parque marino", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "COZUMEL EL CIELO LANCHA": [{"operador": "Suaste", "tipo_pasajero": "Adulto", "precio_internacional": "$1,800 MXN", "precio_nacional": "$1,800 MXN", "tipo_cambio": "N/A", "notas_1": "Más impuestos Muelle $65 MXN pesos", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}, {"operador": "Suaste", "tipo_pasajero": "Menor", "precio_internacional": "$1,700 MXN", "precio_nacional": "$1,700 MXN", "tipo_cambio": "N/A", "notas_1": "Más impuestos Muelle $65 MXN pesos", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "SAIL AWAY CATAMARAN ISLA MUJERES": [{"operador": "Varios", "tipo_pasajero": "General", "precio_internacional": "$35 USD", "precio_nacional": "$35 USD", "tipo_cambio": "20.00 MN", "notas_1": "Más $20 USD de muelle", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "ATV AMAIZING (Individual)": [{"operador": "Varios", "tipo_pasajero": "General", "precio_internacional": "$45 USD", "precio_nacional": "$45 USD", "tipo_cambio": "20.00 MN", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}],
+        "ATV AMAIZING (Compartida)": [{"operador": "Varios", "tipo_pasajero": "General", "precio_internacional": "$35 USD", "precio_nacional": "$35 USD", "tipo_cambio": "20.00 MN", "notas_1": "", "notas_2": "Si es pago con tarjeta cobra comisión 7%"}]
+    };
+
+    // Poblar select
+    const select = document.getElementById('tourSelect');
+    Object.keys(tourData).sort().forEach(tour => {
+        let opt = document.createElement('option');
+        opt.value = tour;
+        opt.innerHTML = tour;
+        select.appendChild(opt);
+    });
+
+    function updateView() {
+        const tourName = select.value;
+        const resultDiv = document.getElementById('result');
+        
+        if (!tourName) {
+            resultDiv.style.display = 'none';
+            return;
+        }
+
+        const entries = tourData[tourName];
+        let html = `<div class="tour-header"><div class="tour-title">${tourName}</div></div>`;
+
+        entries.forEach(e => {
+            html += `
+                <div class="pax-entry">
+                    <div class="data-grid">
+                        <div class="data-item"><span class="label">Operador</span><span class="value">${e.operador || 'N/A'}</span></div>
+                        <div class="data-item"><span class="label">Tipo Pasajero</span><span class="value">${e.tipo_pasajero}</span></div>
+                        <div class="data-item"><span class="label">Precio Internacional</span><span class="value">${e.precio_internacional}</span></div>
+                        <div class="data-item"><span class="label">Precio Nacional</span><span class="value">${e.precio_nacional}</span></div>
+                        <div class="data-item"><span class="label">T. Cambio</span><span class="value">${e.tipo_cambio}</span></div>
+            `;
+
+            if (e.notas_1 || e.notas_2) {
+                html += `<div class="notes-section">`;
+                if (e.notas_1) html += `<div class="note-item">${e.notas_1}</div>`;
+                if (e.notas_2) html += `<div class="note-item note-critical">${e.notas_2}</div>`;
+                html += `</div>`;
+            }
+
+            html += `</div></div>`;
+        });
+
+        resultDiv.innerHTML = html;
+        resultDiv.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
