@@ -40,9 +40,8 @@
 
 <script src="https://www.google.com/charts/loader.js"></script>
 <script>
-  // ID de tu documento integrado directamente
+  // Tu ID de documento de Google Sheets vinculado directamente
   const SHEET_ID = '1bwy5_EwTYsKXAEInHRG8UjulfK7JxP8IHV0XLuMKyzk';
-  const SHEET_NAME = 'Sheet1'; 
   
   let toursData = [];
 
@@ -50,7 +49,8 @@
   google.charts.setOnLoadCallback(init);
 
   function init() {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&tqx=out:json`;
+    // Apunta automáticamente a la primera pestaña del archivo sin importar su nombre
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
     
     fetch(url)
       .then(res => res.text())
@@ -60,7 +60,7 @@
         processData(data.table);
       })
       .catch(err => {
-        document.getElementById('statusMessage').textContent = 'Error de conexión. Verifica los permisos de compartir en tu Sheet.';
+        document.getElementById('statusMessage').textContent = 'Error de conexión. Asegúrate de que el Sheet esté configurado para "Cualquier persona con el enlace".';
         console.error(err);
       });
   }
@@ -69,7 +69,6 @@
     const rows = table.rows;
     
     toursData = rows.map(row => {
-      // Validar la existencia de celdas para evitar errores si la fila está incompleta
       const getVal = (index, prop = 'v') => (row.c && row.c[index]) ? row.c[index][prop] : '';
       const getPrice = (index) => (row.c && row.c[index]) ? (row.c[index].f || row.c[index].v) : '-';
 
