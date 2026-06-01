@@ -2,15 +2,16 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Buscador de Tours en Tiempo Real</title>
+<title>Catálogo de Precios Tours</title>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background-color: #f9fafb; color: #333; padding: 2rem; display: flex; justify-content: center; }
   .container { width: 100%; max-width: 600px; }
   h2 { font-size: 24px; font-weight: 600; margin-bottom: 8px; color: #111; }
   .subtitle { font-size: 14px; color: #666; margin-bottom: 24px; }
-  .search-box { position: relative; width: 100%; margin-bottom: 24px; }
-  input[type="text"] { width: 100%; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 16px; outline: none; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.05); box-sizing: border-box; transition: border 0.2s; }
-  input[type="text"]:focus { border-color: #3b82f6; }
+  .select-box { position: relative; width: 100%; margin-bottom: 24px; }
+  select { width: 100%; padding: 14px 16px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 16px; outline: none; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.05); box-sizing: border-box; cursor: pointer; appearance: none; -webkit-appearance: none; }
+  .select-box::after { content: "▼"; font-size: 12px; color: #94a3b8; position: absolute; right: 16px; top: 18px; pointer-events: none; }
+  select:focus { border-color: #3b82f6; }
   .card { background: #fff; border: 1px solid #edf2f7; border-radius: 10px; padding: 18px; margin-bottom: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
   .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
   .tour-title { font-size: 16px; font-weight: 600; color: #1a202c; margin: 0; max-width: 70%; }
@@ -26,15 +27,17 @@
 <body>
 
 <div class="container">
-  <h2>Buscador de Tours</h2>
-  <div class="subtitle">Resultados en tiempo real sincronizados desde tu Google Sheet</div>
+  <h2>Precios de Tours</h2>
+  <div class="subtitle">Selecciona una opción para desplegar las tarifas vigentes</div>
   
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="Conectando base de datos..." disabled>
+  <div class="select-box">
+    <select id="tourSelect" disabled>
+      <option value="">Conectando base de datos...</option>
+    </select>
   </div>
 
   <div id="results">
-    <div class="loading" id="statusMessage">Cargando tours desde la nube...</div>
+    <div class="loading" id="statusMessage">Cargando catálogo...</div>
   </div>
 </div>
 
@@ -42,7 +45,6 @@
   const SHEET_ID = '1bwy5_EwTYsKXAEInHRG8UjulfK7JxP8IHV0XLuMKyzk';
   let toursData = [];
 
-  // Conexión instantánea al cargar la página
   document.addEventListener('DOMContentLoaded', () => {
     init();
   });
@@ -59,26 +61,20 @@
         try {
           const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
           const data = JSON.parse(jsonString);
-          if (data.status === 'error') {
-            throw new Error(data.errors[0].detailed_message);
-          }
           processData(data.table);
         } catch (e) {
-          document.getElementById('statusMessage').textContent = 'Error: El Sheet regresó un formato inválido o está privado.';
+          document.getElementById('statusMessage').textContent = 'Error al procesar los datos de la nube.';
           console.error(e);
         }
       })
       .catch(err => {
-        document.getElementById('statusMessage').textContent = 'No se pudo conectar con el archivo. Verifica los permisos de compartir.';
+        document.getElementById('statusMessage').textContent = 'Error de conexión. Revisa los permisos del Sheet.';
         console.error(err);
       });
   }
 
   function processData(table) {
-    if (!table || !table.rows) {
-      document.getElementById('statusMessage').textContent = 'No se encontraron filas con datos.';
-      return;
-    }
+    if (!table || !table.rows) return;
     
     const rows = table.rows;
     
@@ -97,33 +93,37 @@
       };
     }).filter(item => item.tour && item.tour !== 'Tour / Parque' && item.tour.trim() !== '');
 
-    const input = document.getElementById('searchInput');
-    input.disabled = false;
-    input.placeholder = "Escribe para buscar (Ej: Xcaret, Chichén, Catamarán)...";
-    document.getElementById('statusMessage').textContent = 'Comienza a escribir para filtrar los tours.';
+    // Obtener tours únicos de la columna B y ordenarlos alfabéticamente
+    const uniqueTours = [...new Set(toursData.map(item => item.tour.trim()))].sort();
 
-    input.addEventListener('input', renderResults);
+    const select = document.getElementById('tourSelect');
+    select.innerHTML = '<option value="">Elige un Tour / Parque...</option>';
+    
+    uniqueTours.forEach(tour => {
+      const option = document.createElement('option');
+      option.value = tour;
+      option.textContent = tour;
+      select.appendChild(option);
+    });
+
+    select.disabled = false;
+    document.getElementById('statusMessage').textContent = 'Selecciona un tour del menú para ver sus detalles.';
+
+    select.addEventListener('change', renderResults);
   }
 
   function renderResults() {
-    const query = document.getElementById('searchInput').value.toLowerCase().trim();
+    const selectedTour = document.getElementById('tourSelect').value;
     const resultsContainer = document.getElementById('results');
     resultsContainer.innerHTML = '';
 
-    if (query === '') {
-      resultsContainer.innerHTML = '<div class="loading">Comienza a escribir para filtrar los tours.</div>';
+    if (selectedTour === '') {
+      resultsContainer.innerHTML = '<div class="loading">Selecciona un tour del menú para ver sus detalles.</div>';
       return;
     }
 
-    const filtered = toursData.filter(item => 
-      item.tour.toLowerCase().includes(query) || 
-      item.operator.toLowerCase().includes(query)
-    );
-
-    if (filtered.length === 0) {
-      resultsContainer.innerHTML = '<div class="loading">No se encontraron tours que coincidan con la búsqueda.</div>';
-      return;
-    }
+    // Filtrar todas las tarifas (Adulto, Menor, etc.) asociadas a ese tour específico
+    const filtered = toursData.filter(item => item.tour.trim() === selectedTour);
 
     filtered.forEach(item => {
       const card = document.createElement('div');
