@@ -38,34 +38,48 @@
   </div>
 </div>
 
-<script src="https://www.google.com/charts/loader.js"></script>
 <script>
-  // Tu ID de documento de Google Sheets vinculado directamente
   const SHEET_ID = '1bwy5_EwTYsKXAEInHRG8UjulfK7JxP8IHV0XLuMKyzk';
-  
   let toursData = [];
 
-  google.charts.load('current', {packages:['corechart']});
-  google.charts.setOnLoadCallback(init);
+  // Conexión instantánea al cargar la página
+  document.addEventListener('DOMContentLoaded', () => {
+    init();
+  });
 
   function init() {
-    // Apunta automáticamente a la primera pestaña del archivo sin importar su nombre
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
     
     fetch(url)
-      .then(res => res.text())
+      .then(res => {
+        if (!res.ok) throw new Error('Error de red');
+        return res.text();
+      })
       .then(text => {
-        const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-        const data = JSON.parse(jsonString);
-        processData(data.table);
+        try {
+          const jsonString = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+          const data = JSON.parse(jsonString);
+          if (data.status === 'error') {
+            throw new Error(data.errors[0].detailed_message);
+          }
+          processData(data.table);
+        } catch (e) {
+          document.getElementById('statusMessage').textContent = 'Error: El Sheet regresó un formato inválido o está privado.';
+          console.error(e);
+        }
       })
       .catch(err => {
-        document.getElementById('statusMessage').textContent = 'Error de conexión. Asegúrate de que el Sheet esté configurado para "Cualquier persona con el enlace".';
+        document.getElementById('statusMessage').textContent = 'No se pudo conectar con el archivo. Verifica los permisos de compartir.';
         console.error(err);
       });
   }
 
   function processData(table) {
+    if (!table || !table.rows) {
+      document.getElementById('statusMessage').textContent = 'No se encontraron filas con datos.';
+      return;
+    }
+    
     const rows = table.rows;
     
     toursData = rows.map(row => {
