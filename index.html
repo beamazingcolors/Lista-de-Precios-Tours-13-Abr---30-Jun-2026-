@@ -20,7 +20,7 @@
   .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; font-size: 14px; border-top: 1px dashed #edf2f7; padding-top: 12px; }
   .grid div { background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9; }
   .grid div span { display: block; font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
-  .notes { margin-top: 12px; font-size: 13px; color: #475569; background: #fffbeb; padding: 12px; border-radius: 6px; border-left: 4px solid #f59e0b; line-height: 1.4; }
+  .notes { margin-top: 12px; font-size: 13px; color: #475569; background: #fffbeb; padding: 12px; border-radius: 6px; border-left: 4px solid #f59e0b; line-height: 1.4; white-space: pre-wrap; }
   .loading { text-align: center; color: #94a3b8; font-size: 14px; margin-top: 20px; }
 </style>
 </head>
@@ -79,8 +79,17 @@
     const rows = table.rows;
     
     toursData = rows.map(row => {
-      const getVal = (index, prop = 'v') => (row.c && row.c[index]) ? row.c[index][prop] : '';
-      const getPrice = (index) => (row.c && row.c[index]) ? (row.c[index].f || row.c[index].v) : '-';
+      const getVal = (index) => {
+        if (!row.c || !row.c[index] || row.c[index].v === null || row.c[index].v === undefined) return '';
+        return String(row.c[index].v);
+      };
+      const getPrice = (index) => {
+        if (!row.c || !row.c[index]) return '-';
+        const cell = row.c[index];
+        if (cell.f) return cell.f;
+        if (cell.v !== null && cell.v !== undefined) return String(cell.v);
+        return '-';
+      };
 
       return {
         operator: getVal(0),
@@ -89,7 +98,8 @@
         intlPrice: getPrice(3),
         nacPrice: getPrice(4),
         exchange: getPrice(5),
-        notes: getVal(6)
+        notes: getVal(6),
+        note2: getVal(7)
       };
     }).filter(item => item.tour && item.tour !== 'Tour / Parque' && item.tour.trim() !== '');
 
@@ -144,8 +154,12 @@
         </div>
       `;
 
-      if (item.notes && item.notes.trim() !== '') {
-        html += `<div class="notes"><strong>Notas / Inclusiones:</strong> ${item.notes}</div>`;
+      const notesList = [];
+      if (item.notes && item.notes.trim()) notesList.push(item.notes.trim());
+      if (item.note2 && item.note2.trim()) notesList.push(item.note2.trim());
+
+      if (notesList.length > 0) {
+        html += `<div class="notes"><strong>Notas / Inclusiones:</strong><br>${notesList.join('\n\n')}</div>`;
       }
 
       card.innerHTML = html;
